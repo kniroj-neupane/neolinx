@@ -3,8 +3,16 @@ import pdf from 'pdf-parse';
 import fs from 'fs';
 import path from 'path';
 
+interface SelectedFields {
+  [key: string]: boolean;
+}
+
+interface ExtractedData {
+  [key: string]: string;
+}
+
 // Create an object to map fields to specific columns
-const columnMapping = {
+const columnMapping: { [key: string]: string } = {
   "Name": 'B',
   "Date of Birth": 'B',
   "Visa": 'B',
@@ -19,7 +27,7 @@ const columnMapping = {
 };
 
 // Utility function to convert column letter to index
-function columnLetterToIndex(letter) {
+function columnLetterToIndex(letter: string): number {
   let index = 0;
   for (let i = 0; i < letter.length; i++) {
     index = index * 26 + (letter.charCodeAt(i) - 65 + 1);
@@ -27,13 +35,13 @@ function columnLetterToIndex(letter) {
   return index - 1;
 }
 
-export default async function handler(req, res) {
+export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
   try {
-    const { file, selectedFields } = req.body;
+    const { file, selectedFields }: { file: string; selectedFields: SelectedFields } = req.body;
     if (!file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
@@ -43,13 +51,13 @@ export default async function handler(req, res) {
     // Extract text from PDF
     const data = await pdf(buffer);
     const text = data.text;
-    const extractedData = {};
+    const extractedData: ExtractedData = {};
 
     // Extract sections
     const sections = extractSections(text);
 
     // Define regex patterns
-    const regexPatterns = {
+    const regexPatterns: { [key: string]: RegExp } = {
       "Name": /Name([^\n]+)/,
       "Date of Birth": /Date of birth([^\n]+)/,
       "Visa": /Visa([^\n]+)/,
@@ -71,7 +79,7 @@ export default async function handler(req, res) {
     }
 
     // Prepare data for Excel
-    const worksheetData = [['Field', 'Value']];
+    const worksheetData: (string | undefined)[][] = [['Field', 'Value']];
     let rowIndex = 1;
 
     for (const [field, isSelected] of Object.entries(selectedFields)) {
@@ -84,7 +92,7 @@ export default async function handler(req, res) {
         rowIndex++;
       }
     }
-
+    rowIndex = 1;
     if (selectedFields["Visa Conditions"] && visaConditions) {
       const visaConditionArray = visaConditions.split(',').map((condition) => condition.trim());
       worksheetData[0][3] = 'Visa Conditions';
@@ -95,9 +103,9 @@ export default async function handler(req, res) {
         rowIndex++;
       });
     }
-
+    const options = {};
     // Create the Excel buffer
-    const bufferXLSX = xlsx.build([{ name: 'Visa Details', data: worksheetData }]);
+    const bufferXLSX = xlsx.build([{ name: 'Visa Details', data: worksheetData, options }]);
 
     // Define file path
     const filePath = path.join(process.cwd(), 'public', 'visa-details.xlsx');
@@ -113,7 +121,7 @@ export default async function handler(req, res) {
 }
 
 // Helper function to extract text sections
-function extractSections(text) {
+function extractSections(text: string) {
   const sectionHeaders = ['Visa conditions', 'Visa duration and travel', 'Visa summary', 'Why keep this notice?'];
 
   const sections = {
@@ -139,7 +147,7 @@ function extractSections(text) {
 }
 
 // Helper function to extract visa conditions
-function extractVisaConditions(visaConditionsSection) {
+function extractVisaConditions(visaConditionsSection: string) {
   const visaConditionsMatches = [...visaConditionsSection.matchAll(/\b(\d{4})\s*-\s*([^\n]+)/g)];
   return visaConditionsMatches.length ? visaConditionsMatches.map((m) => `${m[1]} - ${m[2].trim()}`).join(', ') : 'N/A';
 }
