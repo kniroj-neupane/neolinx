@@ -1,8 +1,9 @@
-const CopyPlugin = require('copy-webpack-plugin');
-
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
+
+const CopyPlugin = require('copy-webpack-plugin');
+
 
 module.exports = withBundleAnalyzer({
   reactStrictMode: true,
