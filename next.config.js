@@ -12,7 +12,6 @@ module.exports = withBundleAnalyzer({
     deviceSizes: [320, 640, 1080, 1200],
     imageSizes: [64, 128],
   },
-  swcMinify: true,
   compiler: {
     styledComponents: true,
   },

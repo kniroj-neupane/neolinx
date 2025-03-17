@@ -222,7 +222,7 @@ const Input = styled.input`
 
 const FileName = styled.p`
   font-size: 16px;
-  color: rgb(var(--textSecondary));
+  color: rgb(var(--textPrimary));
   margin-top: 10px;
 `;
 

@@ -9,7 +9,7 @@ import { ColorModeScript } from 'nextjs-color-mode';
 import React from 'react';
 
 import { GlobalStyle } from 'components/GlobalStyles';
-
+import Extract from 'pages';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -21,8 +21,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <ColorModeScript />
       <GlobalStyle />
-
-        <Component {...pageProps} />
+      <Extract />
     </>
   );
 }
