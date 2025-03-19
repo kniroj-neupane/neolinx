@@ -36,9 +36,7 @@ function columnLetterToIndex(letter: string): number {
 }
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
-  }
+
 
   try {
     const { file, selectedFields }: { file: string; selectedFields: SelectedFields } = req.body;
