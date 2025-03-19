@@ -1,23 +1,23 @@
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import styled from "styled-components";
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import styled from 'styled-components';
 
 export default function Extract() {
   const [file, setFile] = useState<File | null>(null);
-  const [downloadLink, setDownloadLink] = useState("");
+  const [downloadLink, setDownloadLink] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedFields, setSelectedFields] = useState({
-    "Name": true,
-    "Date of Birth": true,
-    "Visa": true,
-    "Stream"  : true,
-    "Date of Grant": true,
-    "Visa Grant Number": true,
-    "Passport(or other travel document) Number": true,
-    "Passport(or other travel document) Country": true,
-    "Application Id": true,
-    "Transaction Reference Number": true,
-    "Visa Conditions": true,
+    Name: true,
+    'Date of Birth': true,
+    Visa: true,
+    Stream: true,
+    'Date of Grant': true,
+    'Visa Grant Number': true,
+    'Passport(or other travel document) Number': true,
+    'Passport(or other travel document) Country': true,
+    'Application Id': true,
+    'Transaction Reference Number': true,
+    'Visa Conditions': true,
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,29 +34,37 @@ export default function Extract() {
   };
 
   const handleUpload = async () => {
-    if (!file) return alert("Please select a file!");
+    if (!file) return alert('Please select a file!');
 
     setLoading(true);
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async () => {
-      const base64Data = reader.result?.toString().split(",")[1];
+      const base64Data = reader.result?.toString().split(',')[1];
 
-      const response = await fetch("/api/extract-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/extract-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ file: base64Data, selectedFields: selectedFields }),
       });
 
-      const data = await response.json();
+      const blob = await response.blob();
+
+      // Create a link element to trigger the download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'visa_information.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       setLoading(false);
 
-      if (data.fileUrl) {
-        setDownloadLink(data.fileUrl);
-      } else {
-        alert("Error processing file");
-      }
+      // if (data.fileUrl) {
+      //   setDownloadLink(data.fileUrl);
+      // } else {
+      //   alert('Error processing file');
+      // }
     };
   };
 
@@ -70,64 +78,39 @@ export default function Extract() {
         <Form>
           <h2>Select Fields to Extract</h2>
           <CheckboxLabel>
-            <input
-              type="checkbox"
-              name="Name"
-              checked={selectedFields["Name"]}
-              onChange={handleFieldChange}
-            />
+            <input type="checkbox" name="Name" checked={selectedFields['Name']} onChange={handleFieldChange} />
             Name
           </CheckboxLabel>
           <CheckboxLabel>
             <input
               type="checkbox"
               name="Date of Birth"
-              checked={selectedFields["Date of Birth"]} // Make sure this matches the key
+              checked={selectedFields['Date of Birth']} // Make sure this matches the key
               onChange={handleFieldChange}
             />
             Date of Birth
           </CheckboxLabel>
           <CheckboxLabel>
-            <input
-              type="checkbox"
-              name="Visa"
-              checked={selectedFields["Visa"]}
-              onChange={handleFieldChange}
-            />
+            <input type="checkbox" name="Visa" checked={selectedFields['Visa']} onChange={handleFieldChange} />
             Visa
           </CheckboxLabel>
           <CheckboxLabel>
-            <input
-              type="checkbox"
-              name="Stream"
-              checked={selectedFields["Stream"]}
-              onChange={handleFieldChange}
-            />
+            <input type="checkbox" name="Stream" checked={selectedFields['Stream']} onChange={handleFieldChange} />
             Stream
           </CheckboxLabel>
           <CheckboxLabel>
-            <input
-              type="checkbox"
-              name="Date of Grant"
-              checked={selectedFields["Date of Grant"]}
-              onChange={handleFieldChange}
-            />
+            <input type="checkbox" name="Date of Grant" checked={selectedFields['Date of Grant']} onChange={handleFieldChange} />
             Date of Grant
           </CheckboxLabel>
           <CheckboxLabel>
-            <input
-              type="checkbox"
-              name="Visa Grant Number"
-              checked={selectedFields["Visa Grant Number"]}
-              onChange={handleFieldChange}
-            />
+            <input type="checkbox" name="Visa Grant Number" checked={selectedFields['Visa Grant Number']} onChange={handleFieldChange} />
             Visa Grant Number
           </CheckboxLabel>
           <CheckboxLabel>
             <input
               type="checkbox"
               name="Passport(or other travel document) Number"
-              checked={selectedFields["Passport(or other travel document) Number"]}
+              checked={selectedFields['Passport(or other travel document) Number']}
               onChange={handleFieldChange}
             />
             Passport Number
@@ -136,42 +119,32 @@ export default function Extract() {
             <input
               type="checkbox"
               name="Passport(or other travel document) Country"
-              checked={selectedFields["Passport(or other travel document) Country"]}
+              checked={selectedFields['Passport(or other travel document) Country']}
               onChange={handleFieldChange}
             />
             Passport Country
           </CheckboxLabel>
           <CheckboxLabel>
-            <input
-              type="checkbox"
-              name="Application Id"
-              checked={selectedFields["Application Id"]}
-              onChange={handleFieldChange}
-            />
+            <input type="checkbox" name="Application Id" checked={selectedFields['Application Id']} onChange={handleFieldChange} />
             Application ID
           </CheckboxLabel>
           <CheckboxLabel>
             <input
               type="checkbox"
               name="Transaction Reference Number"
-              checked={selectedFields["Transaction Reference Number"]}
+              checked={selectedFields['Transaction Reference Number']}
               onChange={handleFieldChange}
             />
             Transaction Reference
           </CheckboxLabel>
           <CheckboxLabel>
-            <input
-              type="checkbox"
-              name="Visa Conditions"
-              checked={selectedFields["Visa Conditions"]}
-              onChange={handleFieldChange}
-            />
+            <input type="checkbox" name="Visa Conditions" checked={selectedFields['Visa Conditions']} onChange={handleFieldChange} />
             Visa Conditions
           </CheckboxLabel>
         </Form>
 
         <UploadButton onClick={handleUpload} disabled={loading}>
-          {loading ? <Loader2 className="icon" size={18} /> : "Upload & Extract"}
+          {loading ? <Loader2 className="icon" size={18} /> : 'Upload & Extract'}
         </UploadButton>
 
         {downloadLink && (

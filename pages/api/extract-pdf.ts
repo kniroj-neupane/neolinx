@@ -13,17 +13,17 @@ interface ExtractedData {
 
 // Create an object to map fields to specific columns
 const columnMapping: { [key: string]: string } = {
-  "Name": 'B',
-  "Date of Birth": 'B',
-  "Visa": 'B',
-  "Stream": 'B',
-  "Date of Grant": 'B',
-  "Visa Grant Number": 'B',
-  "Passport(or other travel document) Number": 'B',
-  "Passport (or other travel document) Country": 'B',
-  "Application Id": 'B',
-  "Transaction Reference Number": 'B',
-  "Visa Conditions": 'D',
+  Name: 'B',
+  'Date of Birth': 'B',
+  Visa: 'B',
+  Stream: 'B',
+  'Date of Grant': 'B',
+  'Visa Grant Number': 'B',
+  'Passport(or other travel document) Number': 'B',
+  'Passport (or other travel document) Country': 'B',
+  'Application Id': 'B',
+  'Transaction Reference Number': 'B',
+  'Visa Conditions': 'D',
 };
 
 // Utility function to convert column letter to index
@@ -58,16 +58,16 @@ export default async function handler(req: any, res: any) {
 
     // Define regex patterns
     const regexPatterns: { [key: string]: RegExp } = {
-      "Name": /Name([^\n]+)/,
-      "Date of Birth": /Date of birth([^\n]+)/,
-      "Visa": /Visa([^\n]+)/,
-      "Stream": /Stream([^\n]+)/,
-      "Date of Grant": /Date of grant([^\n]+)/,
-      "Visa Grant Number": /Visa grant number(\d+)/,
-      "Passport(or other travel document) Number": /Passport \(or other travel[\s\S]*?document\) number[\s\S]*?(\d+)/,
-      "Passport (or other travel document) Country": /Passport \(or other travel[\s\S]*?document\) country[\s\S]*?([A-Za-z]+)/,
-      "Application Id": /Application ID(\d+)/,
-      "Transaction Reference Number": /Transaction reference number(\w+)/,
+      Name: /Name([^\n]+)/,
+      'Date of Birth': /Date of birth([^\n]+)/,
+      Visa: /Visa([^\n]+)/,
+      Stream: /Stream([^\n]+)/,
+      'Date of Grant': /Date of grant([^\n]+)/,
+      'Visa Grant Number': /Visa grant number(\d+)/,
+      'Passport(or other travel document) Number': /Passport \(or other travel[\s\S]*?document\) number[\s\S]*?(\d+)/,
+      'Passport (or other travel document) Country': /Passport \(or other travel[\s\S]*?document\) country[\s\S]*?([A-Za-z]+)/,
+      'Application Id': /Application ID(\d+)/,
+      'Transaction Reference Number': /Transaction reference number(\w+)/,
     };
 
     let visaConditions = extractVisaConditions(sections.visaConditions);
@@ -93,11 +93,11 @@ export default async function handler(req: any, res: any) {
       }
     }
     rowIndex = 1;
-    if (selectedFields["Visa Conditions"] && visaConditions) {
+    if (selectedFields['Visa Conditions'] && visaConditions) {
       const visaConditionArray = visaConditions.split(',').map((condition) => condition.trim());
       worksheetData[0][3] = 'Visa Conditions';
       visaConditionArray.forEach((condition, index) => {
-        const colIndex = columnLetterToIndex(columnMapping["Visa Conditions"] || 'D');
+        const colIndex = columnLetterToIndex(columnMapping['Visa Conditions'] || 'D');
         worksheetData[rowIndex] = worksheetData[rowIndex] || [];
         worksheetData[rowIndex][colIndex] = condition;
         rowIndex++;
@@ -106,14 +106,17 @@ export default async function handler(req: any, res: any) {
     const options = {};
     // Create the Excel buffer
     const bufferXLSX = xlsx.build([{ name: 'Visa Details', data: worksheetData, options }]);
+    console.log(worksheetData);
 
     // Define file path
-    const filePath = path.join(process.cwd(), 'public', 'visa-details.xlsx');
 
     // Save the file
-    fs.writeFileSync(filePath, bufferXLSX);
+    // Set headers for file download
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=visa_information.xlsx');
 
-    res.status(200).json({ message: 'Success', fileUrl: '/visa-details.xlsx' });
+    // Send buffer as response
+    res.status(200).send(bufferXLSX);
   } catch (error) {
     console.error('Error processing PDF:', error);
     res.status(500).json({ message: 'Server error' });
