@@ -106,9 +106,8 @@ export default async function handler(req: any, res: any) {
     const bufferXLSX = xlsx.build([{ name: 'Visa Details', data: worksheetData, options }]);
 
     // Define file path
-    const filePath = path.join(process.cwd(), 'public', 'visa-details.xlsx');
-
-    // Save the file
+    // Define file path
+    const filePath = path.join('/tmp', 'visa-details.xlsx'); // ✅ Use '/tmp' instead of 'public'
     fs.writeFileSync(filePath, bufferXLSX);
 
     res.status(200).json({ message: 'Success', fileUrl: '/visa-details.xlsx' });
