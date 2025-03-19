@@ -110,8 +110,10 @@ export default async function handler(req: any, res: any) {
     const filePath = path.join('/tmp', 'visa-details.xlsx'); // ✅ Use '/tmp' instead of 'public'
     fs.writeFileSync(filePath, bufferXLSX);
 
-    res.status(200).json({ message: 'Success', fileUrl: '/visa-details.xlsx' });
-  } catch (error) {
+    // ✅ Return the file as a downloadable response
+    res.setHeader('Content-Disposition', 'attachment; filename="visa-details.xlsx"');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(bufferXLSX);  } catch (error) {
     console.error('Error processing PDF:', error);
     res.status(500).json({ message: 'Server error' });
   }
